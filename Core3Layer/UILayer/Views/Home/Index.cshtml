@@ -1,0 +1,107 @@
+﻿@model IEnumerable<DataAccessLayer.Entities.Student>
+
+@{
+    ViewData["Title"] = "Index";
+}
+@*
+    <h1>Index</h1>
+
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Mobile)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TID)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.ActionLink(item.Name, "Details", "Home", new { ID = item.ID })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Mobile)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TID)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>*@
+
+
+<h1>Student List</h1>
+
+@using Kendo.Mvc.UI
+@(Html.Kendo().Grid<DataAccessLayer.Entities.Student>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.Name);
+        columns.Bound(c => c.Email);
+        columns.Bound(c => c.Mobile);
+        columns.ForeignKey(c => c.TID, (System.Collections.IEnumerable)ViewBag.TechnologyDropDown, "TID", "TechnologyName").Title("Technology Name").EditorTemplateName("TechnologyList");
+        @*columns.Bound(c => c.TID).EditorTemplateName("TechnologyList").Title("Technology Name").ClientTemplate("#:TechnologyName#");*@
+        columns.Command(command => { command.Custom("Details").Click("showDetails"); command.Edit(); command.Destroy(); }).ClientHeaderTemplate("Action");
+    })
+    .ToolBar(toolbar => toolbar.Create())
+    .Editable(editable => editable.Mode(GridEditMode.InLine)) // Use the inline edit mode.
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => model.Id(s => s.ID))
+        .Create(update => update.Action("Create", "Home"))
+        .Read(read => read.Action("Read", "Home"))
+        .Update(update => update.Action("Create", "Home"))  // Action invoked when the user saves an updated data item.
+        .Destroy(destroy => destroy.Action("Delete", "Home")) // Action invoked when the user removes a data item.
+    )
+)
+@(Html.Kendo().Window().Name("Details")
+    .Title("Student Details")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Width(300)
+)
+
+<script type="text/x-kendo-template" id="template">
+    <div id="details-container">
+        <h3>#= Name #</h3>
+        <p>Technology ID: #= TID #</p>
+        <dl>
+            <dt>Mobile: #= Mobile #</dt>
+            <dt>Email: #= Email #</dt>
+        </dl>
+    </div>
+</script>
+
+<script>
+
+    function showDetails(e) {
+        e.preventDefault();
+
+        var detailsTemplate = kendo.template($("#template").html());
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var wnd = $("#Details").data("kendoWindow");
+
+        wnd.content(detailsTemplate(dataItem));
+        wnd.center().open();
+    }
+
+</script>
