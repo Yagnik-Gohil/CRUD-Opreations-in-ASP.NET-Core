@@ -1,0 +1,8 @@
+﻿@using System.Collections
+@model System.Int32
+
+@(Html.Kendo().DropDownListFor(m => m)
+            .BindTo((IEnumerable)ViewBag.TechnologyDropDown)
+            .OptionLabel("Select Technology")
+            .DataValueField("TID")
+            .DataTextField("TechnologyName"))
